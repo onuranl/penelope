@@ -93,12 +93,13 @@ if (isDevelopment) {
 
 let info;
 
-ipcMain.on('yt:mp3', async (channel, videoID) => {
+ipcMain.on('yt:download', async (channel, payload) => {
   try {
-    const file_path = path.join(DOWNLOAD_DIR, slug(info.videoDetails.title) + '-' + '.mp4')
+    payload = JSON.parse(payload)
 
-    await ytdl(videoID, { filter: 'audioandvideo' }).pipe(fs.createWriteStream(file_path))
+    const file_path = path.join(DOWNLOAD_DIR, slug(info.videoDetails.title) + '.' + payload.type)
 
+    await ytdl(payload.videoID, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly' }).pipe(fs.createWriteStream(file_path))
   } catch (error) {
     console.log({ error })
   }

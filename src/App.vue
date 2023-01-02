@@ -204,10 +204,13 @@ const downloading = ref(false);
 const download = () => {
   downloading.value = true;
 
-  if (selectedType.value === "mp3")
-    return ipcRenderer.send("yt:mp3", videoID.value);
-
-  ipcRenderer.send("yt:mp4", videoID.value);
+  ipcRenderer.send(
+    "yt:download",
+    JSON.stringify({
+      videoID: videoID.value,
+      type: selectedType.value,
+    })
+  );
 };
 
 const getDetail = () => {
