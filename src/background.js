@@ -1,28 +1,39 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+
+const fs = require('fs');
+const ytdl = require('ytdl-core');
+const path = require('path');
+const slug = require('slug');
+
+const DOWNLOAD_DIR = path.join(process.env.HOME || process.env.USERPROFILE, 'downloads/');
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+let win
+
 async function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      
+
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     }
   })
+
+  win.setMenuBarVisibility(false)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -79,3 +90,27 @@ if (isDevelopment) {
     })
   }
 }
+
+let info;
+
+ipcMain.on('yt:mp3', async (channel, videoID) => {
+  try {
+    const file_path = path.join(DOWNLOAD_DIR, slug(info.videoDetails.title) + '-' + '.mp4')
+
+    await ytdl(videoID, { filter: 'audioandvideo' }).pipe(fs.createWriteStream(file_path))
+
+  } catch (error) {
+    console.log({ error })
+  }
+})
+
+ipcMain.on('yt:detail', async (channel, videoID) => {
+  try {
+    info = await ytdl.getInfo(videoID);
+
+    win.webContents.send('yt:detail', info.videoDetails)
+  } catch (error) {
+    win.webContents.send('yt:detail', 'Video unavailable')
+  }
+})
+
