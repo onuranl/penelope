@@ -7,8 +7,8 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const fs = require('fs');
 const ytdl = require('ytdl-core');
-const path = require('path');
 const slug = require('slug');
+const path = require('path');
 
 const DOWNLOAD_DIR = path.join(process.env.HOME || process.env.USERPROFILE, 'downloads/');
 
@@ -91,18 +91,41 @@ if (isDevelopment) {
   }
 }
 
+// main
+
 let info;
 
-ipcMain.on('yt:download', async (channel, payload) => {
-  try {
-    payload = JSON.parse(payload)
+ipcMain.on('yt:download', (channel, payload) => {
 
-    const file_path = path.join(DOWNLOAD_DIR, slug(info.videoDetails.title) + '.' + payload.type)
+  payload = JSON.parse(payload)
 
-    await ytdl(payload.videoID, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly' }).pipe(fs.createWriteStream(file_path))
-  } catch (error) {
-    console.log({ error })
-  }
+  const file_path = path.join(DOWNLOAD_DIR, slug(info.videoDetails.title) + '.' + payload.type)
+
+  const video = ytdl(payload.videoURL, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly', quality: payload.quality })
+
+  let starttime;
+
+  video.pipe(fs.createWriteStream(file_path))
+
+  video.once('response', () => {
+    starttime = Date.now();
+  });
+
+  video.on('progress', (chunkLength, downloaded, total) => {
+    const percent = downloaded / total;
+    const downloadedMinutes = (Date.now() - starttime) / 1000 / 60;
+    const estimatedDownloadTime = (downloadedMinutes / percent) - downloadedMinutes;
+
+    win.webContents.send('yt:progress', { percent: percent.toFixed(2), downloadedMinutes, estimatedDownloadTime })
+  });
+
+  video.on('end', () => {
+    process.stdout.write('\n\n');
+  });
+
+  video.on('error', (err) => {
+    console.log({ err })
+  });
 })
 
 ipcMain.on('yt:detail', async (channel, videoID) => {

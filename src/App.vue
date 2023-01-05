@@ -77,7 +77,7 @@
         v-if="videoDetail"
         class="grid gap-6 w-full md:grid-cols-2 text-start mb-8"
       >
-        <li v-for="(type, index) in types" :key="index">
+        <li v-for="type in types" :key="type.id">
           <input
             v-model="selectedType"
             type="radio"
@@ -113,6 +113,45 @@
               <div class="w-full">{{ type.description }}</div>
             </div>
           </label>
+        </li>
+      </ul>
+      <ul
+        v-if="selectedType === 'mp4'"
+        class="w-9/12 grid gap-2 w-full md:grid-cols-2 text-start mb-8 mx-auto"
+      >
+        <li v-for="quality in qualities" :key="quality.value">
+          <div class="flex items-center pl-3">
+            <input
+              v-model="selectedQuality"
+              :value="quality.value"
+              :id="quality.value"
+              type="radio"
+              class="hidden peer"
+            />
+            <label
+              :for="quality.value"
+              class="
+                inline-flex
+                justify-between
+                items-center
+                p-5
+                w-full
+                text-gray-500
+                bg-white
+                rounded-lg
+                border border-gray-200
+                cursor-pointer
+                dark:hover:text-gray-300
+                dark:border-gray-700
+                dark:peer-checked:text-blue-500
+                peer-checked:border-blue-600 peer-checked:text-blue-600
+                hover:text-gray-600 hover:bg-gray-100
+                dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700
+              "
+            >
+              {{ quality.name }} Quality
+            </label>
+          </div>
         </li>
       </ul>
       <button
@@ -188,12 +227,24 @@ const { ipcRenderer } = require("electron");
 const baseUrl = ref("youtube.com/watch?v=");
 
 const videoIdRegex = ref(/^[a-zA-Z0-9-_]{11}$/);
+
 const types = ref([
   { id: "mp3", title: "MP3", description: "Audio only" },
   { id: "mp4", title: "MP4", description: "Audio + video" },
 ]);
+const qualities = ref([
+  {
+    name: "Low",
+    value: "lowestvideo",
+  },
+  {
+    name: "High",
+    value: "highestvideo",
+  },
+]);
 
 const selectedType = ref("mp3");
+const selectedQuality = ref("137");
 
 const videoID = ref(null);
 const videoDetail = ref(null);
@@ -201,14 +252,19 @@ const videoDetail = ref(null);
 const loading = ref(false);
 const downloading = ref(false);
 
+// const percent = ref(0);
+// const downloadedMinutes = ref(0);
+// const estimatedDownloadTime = ref(0);
+
 const download = () => {
   downloading.value = true;
 
   ipcRenderer.send(
     "yt:download",
     JSON.stringify({
-      videoID: videoID.value,
+      videoURL: "https://www." + baseUrl.value + videoID.value,
       type: selectedType.value,
+      quality: selectedQuality.value,
     })
   );
 };
@@ -230,6 +286,10 @@ onMounted(() => {
     videoDetail.value = detail;
 
     loading.value = false;
+  });
+
+  ipcRenderer.on("yt:progress", (e, detail) => {
+    console.log({ detail });
   });
 });
 </script>
