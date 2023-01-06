@@ -13,16 +13,18 @@ const store = createStore({
             videoIdRegex: /^[a-zA-Z0-9-_]{11}$/,
             videoID: null,
             videoDetail: null,
+            state: null,
             progress: 0,
             selectedType: 'mp3',
             selectedQuality: 'highestvideo',
-            loading: false,
-            modal: false,
+            searching: false,
         }
     },
     getters: {
         videoFormatController: (state) => state.videoIdRegex.test(state.videoID),
-        isVideoValid: (state) => state.videoDetail && state.videoDetail === "Video unavailable" ? false : state.videoDetail
+        isVideoValid: (state) => state.videoDetail && state.videoDetail === "Video unavailable" ? false : state.videoDetail,
+        modal: (state) => state.state && state.state !== 'started',
+        loading: (state) => state.state && state.state === 'started',
     },
     mutations: {
         setVideoID(state, value) {
@@ -30,6 +32,9 @@ const store = createStore({
         },
         setVideoDetail(state, value) {
             state.videoDetail = value
+        },
+        setState(state, value) {
+            state.state = value
         },
         setProgress(state, value) {
             state.progress = value
@@ -40,24 +45,19 @@ const store = createStore({
         setSelectedQuality(state, value) {
             state.selectedQuality = value
         },
-        setLoading(state, value) {
-            state.loading = value
+        setSearching(state, value) {
+            state.searching = value
         },
-        setModal(state, value) {
-            state.modal = value
-        }
     },
     actions: {
         getDetail({ state, getters, commit }) {
             if (getters.videoFormatController) {
-                commit('setLoading', true)
+                commit('setSearching', true)
 
                 ipcRenderer.send("yt:detail", state.videoID);
             }
         },
-        download({ state, commit }) {
-            commit('setModal', true)
-
+        download({ state }) {
             ipcRenderer.send(
                 "yt:download", {
                 videoURL: "https://www." + state.baseUrl + state.videoID,

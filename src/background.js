@@ -31,7 +31,6 @@ async function createWindow() {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     },
-    loading: false
   })
 
   win.setMenuBarVisibility(false)
@@ -109,27 +108,26 @@ ipcMain.on('yt:detail', async (channel, videoID) => {
 ipcMain.on('yt:download', (channel, payload) => {
   const file_path = path.join(DOWNLOAD_DIR, slug(info.videoDetails.title) + '.' + payload.type)
 
+  win.webContents.send('yt:state', 'started')
+
   const video = ytdl(payload.videoURL, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly', quality: payload.type === 'mp4' ? payload.quality : 'highestaudio' })
 
   video.pipe(fs.createWriteStream(file_path))
 
-  video.once('response', () => {
-    console.log("started")
-  });
-
   video.on('progress', (chunkLength, downloaded, total) => {
-    console.log("progress")
+    win.webContents.send('yt:state', 'progress')
+
     const percent = (downloaded / total).toFixed(2).split('.')[1];
 
     win.webContents.send('yt:progress', percent === '00' ? '100' : percent)
   });
 
   video.on('end', () => {
-    console.log("end")
+    win.webContents.send('yt:state', 'ended')
   });
 
   video.on('error', (err) => {
-    console.log({ err })
+    win.webContents.send('yt:state', err)
   });
 })
 

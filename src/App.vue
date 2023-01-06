@@ -9,6 +9,7 @@ import Type from "./components/type.vue";
 import Quality from "./components/quality.vue";
 import Download from "./components/download.vue";
 import Progress from "./components/progress.vue";
+import Loading from "./components/loading.vue";
 
 const { ipcRenderer } = require("electron");
 
@@ -16,23 +17,28 @@ const store = useStore();
 
 const videoDetail = computed(() => store.state.videoDetail);
 const selectedType = computed(() => store.state.selectedType);
-const modal = computed(() => store.state.modal);
 const isVideoValid = computed(() => store.getters.isVideoValid);
+const modal = computed(() => store.getters.modal);
+const loading = computed(() => store.getters.loading);
 
 onMounted(() => {
   ipcRenderer.on("yt:detail", (e, detail) => {
     store.commit("setVideoDetail", detail);
-    store.commit("setLoading", false);
+    store.commit("setSearching", false);
   });
 
-  ipcRenderer.on("yt:progress", (e, detail) => {
-    store.commit("setProgress", detail);
+  ipcRenderer.on("yt:state", (e, state) => {
+    store.commit("setState", state);
+  });
+
+  ipcRenderer.on("yt:progress", (e, progress) => {
+    store.commit("setProgress", progress);
   });
 });
 </script>
 
 <template>
-  <div class="flex justify-center scroll-smooth font-mono">
+  <div v-if="!loading" class="flex justify-center scroll-smooth font-mono">
     <div class="text-center">
       <p class="font-bold text-2xl text-white">Youtube Mp3/4 Converter</p>
       <div class="mt-8">
@@ -53,4 +59,5 @@ onMounted(() => {
       <Progress v-if="modal" />
     </div>
   </div>
+  <Loading v-else />
 </template>
