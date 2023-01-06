@@ -30,7 +30,8 @@ async function createWindow() {
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-    }
+    },
+    loading: false
   })
 
   win.setMenuBarVisibility(false)
@@ -95,7 +96,6 @@ if (isDevelopment) {
 
 let info;
 
-
 ipcMain.on('yt:detail', async (channel, videoID) => {
   try {
     info = await ytdl.getInfo(videoID);
@@ -111,24 +111,21 @@ ipcMain.on('yt:download', (channel, payload) => {
 
   const video = ytdl(payload.videoURL, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly', quality: payload.type === 'mp4' ? payload.quality : 'highestaudio' })
 
-  let starttime;
-
   video.pipe(fs.createWriteStream(file_path))
 
   video.once('response', () => {
-    starttime = Date.now();
+    console.log("started")
   });
 
   video.on('progress', (chunkLength, downloaded, total) => {
-    const percent = downloaded / total;
-    const downloadedMinutes = (Date.now() - starttime) / 1000 / 60;
-    const estimatedDownloadTime = (downloadedMinutes / percent) - downloadedMinutes;
+    console.log("progress")
+    const percent = (downloaded / total).toFixed(2).split('.')[1];
 
-    win.webContents.send('yt:progress', { percent: percent.toFixed(2), downloadedMinutes, estimatedDownloadTime })
+    win.webContents.send('yt:progress', percent === '00' ? '100' : percent)
   });
 
   video.on('end', () => {
-    process.stdout.write('\n\n');
+    console.log("end")
   });
 
   video.on('error', (err) => {

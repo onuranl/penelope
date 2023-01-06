@@ -13,10 +13,11 @@ const store = createStore({
             videoIdRegex: /^[a-zA-Z0-9-_]{11}$/,
             videoID: null,
             videoDetail: null,
+            progress: 0,
             selectedType: 'mp3',
             selectedQuality: 'highestvideo',
             loading: false,
-            downloading: false,
+            modal: false,
         }
     },
     getters: {
@@ -30,6 +31,9 @@ const store = createStore({
         setVideoDetail(state, value) {
             state.videoDetail = value
         },
+        setProgress(state, value) {
+            state.progress = value
+        },
         setSelectedType(state, value) {
             state.selectedType = value
         },
@@ -39,8 +43,8 @@ const store = createStore({
         setLoading(state, value) {
             state.loading = value
         },
-        setDownloading(state, value) {
-            state.downloading = value
+        setModal(state, value) {
+            state.modal = value
         }
     },
     actions: {
@@ -52,7 +56,7 @@ const store = createStore({
             }
         },
         download({ state, commit }) {
-            commit('setDownloading', true)
+            commit('setModal', true)
 
             ipcRenderer.send(
                 "yt:download", {

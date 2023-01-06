@@ -16,7 +16,7 @@ const store = useStore();
 
 const videoDetail = computed(() => store.state.videoDetail);
 const selectedType = computed(() => store.state.selectedType);
-const downloading = computed(() => store.state.downloading);
+const modal = computed(() => store.state.modal);
 const isVideoValid = computed(() => store.getters.isVideoValid);
 
 onMounted(() => {
@@ -26,7 +26,7 @@ onMounted(() => {
   });
 
   ipcRenderer.on("yt:progress", (e, detail) => {
-    console.log({ detail });
+    store.commit("setProgress", detail);
   });
 });
 </script>
@@ -39,9 +39,9 @@ onMounted(() => {
         <div v-if="isVideoValid">
           <p class="mb-4 text-white">{{ videoDetail.title }}</p>
           <YoutubeVue3
+            class="mx-auto"
             :videoid="videoDetail.videoId"
             :autoplay="0"
-            class="mx-auto"
           />
         </div>
         <p v-else class="text-red-600">{{ videoDetail }}</p>
@@ -50,7 +50,7 @@ onMounted(() => {
       <Type v-if="isVideoValid" />
       <Quality v-if="selectedType === 'mp4'" />
       <Download />
-      <Progress v-if="downloading" />
+      <Progress v-if="modal" />
     </div>
   </div>
 </template>

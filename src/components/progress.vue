@@ -1,8 +1,10 @@
-<script>
-export default {
-  name: "downloadProgress",
-  props: ["progress"],
-};
+<script setup>
+import { computed } from "vue";
+import { useStore } from "vuex";
+
+const store = useStore();
+
+const progress = computed(() => store.state.progress);
 </script>
 
 <template>
@@ -47,22 +49,10 @@ export default {
                         leading-none
                         rounded-full
                       "
-                      style="width: 45%"
+                      :style="`width: ${progress}%`"
                     >
-                      45%
+                      {{ progress }}%
                     </div>
-                  </div>
-                  <div
-                    class="
-                      w-full
-                      flex
-                      justify-center
-                      mt-4
-                      text-sm text-gray-500
-                    "
-                  >
-                    <p class="mr-10">Geçen süre: 1231</p>
-                    <p>Kalan süre: 1231</p>
                   </div>
                 </div>
               </div>
@@ -100,3 +90,7 @@ export default {
     </div>
   </div>
 </template>
+
+<script>
+export default { name: "downloadProgress" };
+</script>
