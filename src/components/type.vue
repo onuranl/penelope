@@ -9,9 +9,9 @@ const types = ref([
   { id: "mp4", title: "MP4", description: "Audio + video" },
 ]);
 
-const selectedType = computed({
-  get: () => store.state.selectedType,
-  set: (val) => store.commit("setSelectedType", val),
+const videoType = computed({
+  get: () => store.state.videoType,
+  set: (val) => store.commit("setVideoType", val),
 });
 </script>
 
@@ -19,7 +19,7 @@ const selectedType = computed({
   <ul class="grid gap-6 w-full md:grid-cols-2 text-start mb-8">
     <li v-for="type in types" :key="type.id">
       <input
-        v-model="selectedType"
+        v-model="videoType"
         type="radio"
         name="type"
         :id="type.id"

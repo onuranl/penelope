@@ -16,7 +16,7 @@ const { ipcRenderer } = require("electron");
 const store = useStore();
 
 const videoDetail = computed(() => store.state.videoDetail);
-const selectedType = computed(() => store.state.selectedType);
+const videoType = computed(() => store.state.videoType);
 const isVideoValid = computed(() => store.getters.isVideoValid);
 const modal = computed(() => store.getters.modal);
 const loading = computed(() => store.getters.loading);
@@ -54,7 +54,7 @@ onMounted(() => {
       </div>
       <Search />
       <Type v-if="isVideoValid" />
-      <Quality v-if="selectedType === 'mp4'" />
+      <Quality v-if="videoType === 'mp4'" />
       <Download />
       <Progress v-if="modal" />
     </div>

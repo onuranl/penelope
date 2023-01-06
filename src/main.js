@@ -15,8 +15,8 @@ const store = createStore({
             videoDetail: null,
             state: null,
             progress: 0,
-            selectedType: 'mp3',
-            selectedQuality: 'highestvideo',
+            videoType: 'mp3',
+            videoQuality: 'highestvideo',
             searching: false,
         }
     },
@@ -39,11 +39,11 @@ const store = createStore({
         setProgress(state, value) {
             state.progress = value
         },
-        setSelectedType(state, value) {
-            state.selectedType = value
+        setVideoType(state, value) {
+            state.videoType = value
         },
-        setSelectedQuality(state, value) {
-            state.selectedQuality = value
+        setVideoQuality(state, value) {
+            state.videoQuality = value
         },
         setSearching(state, value) {
             state.searching = value
@@ -61,8 +61,8 @@ const store = createStore({
             ipcRenderer.send(
                 "yt:download", {
                 videoURL: "https://www." + state.baseUrl + state.videoID,
-                type: state.selectedType,
-                quality: state.selectedQuality,
+                type: state.videoType,
+                quality: state.videoQuality,
             }
             );
         }

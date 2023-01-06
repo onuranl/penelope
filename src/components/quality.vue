@@ -15,9 +15,9 @@ const qualities = ref([
   },
 ]);
 
-const selectedQuality = computed({
-  get: () => store.state.selectedQuality,
-  set: (val) => store.commit("setSelectedQuality", val),
+const videoQuality = computed({
+  get: () => store.state.videoQuality,
+  set: (val) => store.commit("setVideoQuality", val),
 });
 </script>
 
@@ -26,7 +26,7 @@ const selectedQuality = computed({
     <li v-for="quality in qualities" :key="quality.value">
       <div class="flex items-center pl-3">
         <input
-          v-model="selectedQuality"
+          v-model="videoQuality"
           :value="quality.value"
           :id="quality.value"
           type="radio"
