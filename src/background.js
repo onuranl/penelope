@@ -95,13 +95,21 @@ if (isDevelopment) {
 
 let info;
 
+
+ipcMain.on('yt:detail', async (channel, videoID) => {
+  try {
+    info = await ytdl.getInfo(videoID);
+
+    win.webContents.send('yt:detail', info.videoDetails)
+  } catch (error) {
+    win.webContents.send('yt:detail', 'Video unavailable')
+  }
+})
+
 ipcMain.on('yt:download', (channel, payload) => {
-
-  payload = JSON.parse(payload)
-
   const file_path = path.join(DOWNLOAD_DIR, slug(info.videoDetails.title) + '.' + payload.type)
 
-  const video = ytdl(payload.videoURL, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly', quality: payload.quality })
+  const video = ytdl(payload.videoURL, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly', quality: payload.type === 'mp4' ? payload.quality : 'highestaudio' })
 
   let starttime;
 
@@ -126,15 +134,5 @@ ipcMain.on('yt:download', (channel, payload) => {
   video.on('error', (err) => {
     console.log({ err })
   });
-})
-
-ipcMain.on('yt:detail', async (channel, videoID) => {
-  try {
-    info = await ytdl.getInfo(videoID);
-
-    win.webContents.send('yt:detail', info.videoDetails)
-  } catch (error) {
-    win.webContents.send('yt:detail', 'Video unavailable')
-  }
 })
 
