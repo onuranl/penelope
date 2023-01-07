@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
 
-import { YoutubeVue3 } from "youtube-vue3";
+import YouTube from "vue3-youtube";
 
 import Search from "./components/search.vue";
 import Type from "./components/type.vue";
@@ -27,6 +27,8 @@ const loading = computed(() => store.getters.loading);
 const error = ref(null);
 
 const handleError = () => {
+  store.commit("setStateDefault");
+
   error.value.setState(true);
 
   setTimeout(() => {
@@ -60,10 +62,9 @@ onMounted(() => {
       <div class="mt-8">
         <div v-if="isVideoValid">
           <p class="mb-4 text-white">{{ videoDetail.title }}</p>
-          <YoutubeVue3
+          <YouTube
             class="mx-auto"
-            :videoid="videoDetail.videoId"
-            :autoplay="0"
+            :src="videoDetail.videoId"
             @error="handleError"
           />
         </div>
