@@ -5,86 +5,106 @@ import { useStore } from "vuex";
 const store = useStore();
 
 const progress = computed(() => store.state.progress);
+const state = computed(() => store.state.state);
 </script>
 
 <template>
-  <div class="relative z-10">
-    <div class="fixed inset-0 z-10 overflow-y-auto">
+  <div class="fixed inset-0 z-10 overflow-y-auto">
+    <div
+      class="flex min-h-full justify-center p-4 text-center items-center sm:p-0"
+    >
       <div
         class="
-          flex
-          min-h-full
-          items-end
-          justify-center
-          p-4
-          text-center
-          sm:items-center sm:p-0
+          relative
+          bg-white
+          rounded-lg
+          shadow
+          dark:bg-gray-700
+          w-3/4
+          xl:w-1/3
+          md:w-1/2
         "
       >
-        <div
-          class="
-            relative
-            transform
-            overflow-hidden
-            rounded-lg
-            bg-white
-            text-left
-            shadow-xl
-            transition-all
-            sm:my-8 sm:w-full sm:max-w-lg
-          "
-        >
-          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="sm:flex sm:items-start">
-              <div class="w-full mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <div class="w-full mt-2">
-                  <div class="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                    <div
-                      class="
-                        bg-blue-600
-                        text-xs
-                        font-medium
-                        text-blue-100 text-center
-                        p-1
-                        leading-none
-                        rounded-full
-                      "
-                      :style="`width: ${progress}%`"
-                    >
-                      {{ progress }}%
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <div class="p-6 text-center">
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="text-base font-medium text-blue-700 dark:text-white"
+                >Downloading</span
+              >
+              <span class="text-base font-medium text-blue-700 dark:text-white"
+                >{{
+                  progress.toString().charAt(0) == 0
+                    ? progress.slice(1)
+                    : progress
+                }}
+                %</span
+              >
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div
+                class="bg-blue-600 h-2.5 rounded-full"
+                :style="`width: ${progress}%`"
+              ></div>
             </div>
           </div>
-          <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-            <button
-              type="button"
-              class="
-                inline-flex
-                w-full
-                justify-center
-                rounded-md
-                border border-transparent
-                bg-red-600
-                px-4
-                py-2
-                text-base
-                font-medium
-                text-white
-                shadow-sm
-                hover:bg-red-700
-                focus:outline-none
-                focus:ring-2
-                focus:ring-red-500
-                focus:ring-offset-2
-                sm:ml-3 sm:w-auto sm:text-sm
-              "
+          <div class="my-8">
+            <p v-if="state === 'ended'" class="text-green-500">
+              Successfully downloaded
+            </p>
+            <p
+              v-if="state !== 'ended' && state !== 'progress'"
+              class="text-red-500"
             >
-              Cancel
-            </button>
+              Successfully downloaded
+            </p>
           </div>
+          <button
+            v-if="state === 'ended'"
+            type="button"
+            class="
+              hover:bg-gray-100
+              focus:ring-4 focus:outline-none focus:ring-gray-200
+              rounded-lg
+              border border-gray-200
+              text-sm
+              font-medium
+              px-5
+              py-2.5
+              hover:text-gray-900
+              focus:z-10
+              dark:bg-gray-700
+              dark:text-gray-300
+              dark:border-gray-500
+              dark:hover:text-white
+              dark:hover:bg-gray-600
+              dark:focus:ring-gray-600
+            "
+            @click="store.dispatch('updateDownloads')"
+          >
+            Okey
+          </button>
+          <button
+            v-else
+            type="button"
+            class="
+              text-white
+              bg-red-600
+              hover:bg-red-800
+              focus:ring-4 focus:outline-none focus:ring-red-300
+              dark:focus:ring-red-800
+              font-medium
+              rounded-lg
+              text-sm
+              inline-flex
+              items-center
+              px-5
+              py-2.5
+              text-center
+              mr-2
+            "
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
