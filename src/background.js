@@ -31,6 +31,8 @@ async function createWindow() {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
     },
+    icon: path.join(__dirname, "../public/icon.png"),
+
   })
 
   win.setMenuBarVisibility(false)
