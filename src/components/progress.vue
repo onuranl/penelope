@@ -34,7 +34,7 @@ const state = computed(() => store.state.state);
               <span class="text-base font-medium text-blue-700 dark:text-white"
                 >{{
                   progress.toString().charAt(0) == 0
-                    ? progress.slice(1)
+                    ? progress.toString().slice(1)
                     : progress
                 }}
                 %</span
