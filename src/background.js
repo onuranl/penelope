@@ -94,6 +94,7 @@ if (isDevelopment) {
 // main
 
 let info;
+let video;
 
 ipcMain.on('yt:detail', async (channel, videoID) => {
   try {
@@ -110,7 +111,7 @@ ipcMain.on('yt:download', (channel, payload) => {
 
   win.webContents.send('yt:state', 'started')
 
-  const video = ytdl(payload.videoURL, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly', quality: payload.type === 'mp4' ? payload.quality : 'highestaudio' })
+  video = ytdl(payload.videoURL, { filter: payload.type === 'mp4' ? 'audioandvideo' : 'audioonly', quality: payload.type === 'mp4' ? payload.quality : 'highestaudio' })
 
   video.pipe(fs.createWriteStream(file_path))
 
@@ -131,3 +132,6 @@ ipcMain.on('yt:download', (channel, payload) => {
   });
 })
 
+ipcMain.on('yt:cancel', () => {
+  video.destroy()
+})

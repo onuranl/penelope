@@ -81,6 +81,11 @@ const store = createStore({
             }
             );
         },
+        destroyDownload({ commit }) {
+            ipcRenderer.send("yt:cancel");
+
+            commit('setState', null)
+        },
         updateDownloads({ state, commit }) {
             const downloads = state.downloads
 

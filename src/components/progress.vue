@@ -102,6 +102,7 @@ const state = computed(() => store.state.state);
               text-center
               mr-2
             "
+            @click="store.dispatch('destroyDownload')"
           >
             Cancel
           </button>
