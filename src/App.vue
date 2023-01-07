@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
 
 import { YoutubeVue3 } from "youtube-vue3";
@@ -10,6 +10,7 @@ import Quality from "./components/quality.vue";
 import Download from "./components/download.vue";
 import Downloads from "./components/downloads.vue";
 import Progress from "./components/progress.vue";
+import Error from "./components/error.vue";
 import Loading from "./components/loading.vue";
 
 const { ipcRenderer } = require("electron");
@@ -22,6 +23,16 @@ const downloads = computed(() => store.state.downloads);
 const isVideoValid = computed(() => store.getters.isVideoValid);
 const modal = computed(() => store.getters.modal);
 const loading = computed(() => store.getters.loading);
+
+const error = ref(null);
+
+const handleError = () => {
+  error.value.setState(true);
+
+  setTimeout(() => {
+    error.value.setState(false);
+  }, 3000);
+};
 
 onMounted(() => {
   ipcRenderer.on("yt:detail", (e, detail) => {
@@ -40,7 +51,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="!loading" class="flex justify-center scroll-smooth font-mono">
+  <div
+    v-if="!loading"
+    class="relative flex justify-center scroll-smooth font-mono"
+  >
     <div class="text-center">
       <p class="font-bold text-2xl text-white">Youtube Mp3/4 Converter</p>
       <div class="mt-8">
@@ -50,6 +64,7 @@ onMounted(() => {
             class="mx-auto"
             :videoid="videoDetail.videoId"
             :autoplay="0"
+            @error="handleError"
           />
         </div>
         <p v-else class="text-red-600">{{ videoDetail }}</p>
@@ -61,6 +76,7 @@ onMounted(() => {
       <Downloads v-if="downloads && downloads.length > 0" :data="downloads" />
       <Progress v-if="modal" />
     </div>
+    <Error ref="error" />
   </div>
   <Loading v-else />
 </template>
