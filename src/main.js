@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import { createStore } from 'vuex'
 import App from './App.vue'
 
+import VueCookies from 'vue-cookies'
+
 import './styles/app.css';
 
 const { ipcRenderer } = require("electron");
@@ -18,6 +20,7 @@ const store = createStore({
             videoType: 'mp3',
             videoQuality: 'highestvideo',
             searching: false,
+            downloads: VueCookies.get('downloads') || []
         }
     },
     getters: {
@@ -48,6 +51,18 @@ const store = createStore({
         setSearching(state, value) {
             state.searching = value
         },
+        setDownloads(state, value) {
+            state.downloads = value
+        },
+        setStateDefault(state) {
+            const defaults = ['videoID', 'videoDetail', 'state', 'searching']
+
+            Object.keys(initialStateCopy).map(key => {
+                if (defaults.includes(key)) {
+                    state[key] = initialStateCopy[key]
+                }
+            })
+        }
     },
     actions: {
         getDetail({ state, getters, commit }) {
@@ -65,12 +80,27 @@ const store = createStore({
                 quality: state.videoQuality,
             }
             );
+        },
+        updateDownloads({ state, commit }) {
+            const downloads = state.downloads
+
+            downloads.unshift(state.videoDetail.title)
+
+            VueCookies.set('downloads', JSON.stringify(downloads))
+
+            commit('setDownloads', downloads)
+
+            commit('setStateDefault')
         }
     }
 })
 
+const initialStateCopy = JSON.parse(JSON.stringify(store.state))
+
 const app = createApp(App)
 
 app.use(store)
+
+app.use(VueCookies, { expires: '7d' })
 
 app.mount('#app')

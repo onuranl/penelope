@@ -8,6 +8,7 @@ import Search from "./components/search.vue";
 import Type from "./components/type.vue";
 import Quality from "./components/quality.vue";
 import Download from "./components/download.vue";
+import Downloads from "./components/downloads.vue";
 import Progress from "./components/progress.vue";
 import Loading from "./components/loading.vue";
 
@@ -17,6 +18,7 @@ const store = useStore();
 
 const videoDetail = computed(() => store.state.videoDetail);
 const videoType = computed(() => store.state.videoType);
+const downloads = computed(() => store.state.downloads);
 const isVideoValid = computed(() => store.getters.isVideoValid);
 const modal = computed(() => store.getters.modal);
 const loading = computed(() => store.getters.loading);
@@ -56,6 +58,7 @@ onMounted(() => {
       <Type v-if="isVideoValid" />
       <Quality v-if="videoType === 'mp4'" />
       <Download />
+      <Downloads v-if="downloads && downloads.length > 0" :data="downloads" />
       <Progress v-if="modal" />
     </div>
   </div>
